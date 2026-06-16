@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Personal Mission Statement Builder</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: #0f0e0b; color: #e8e2d5; min-height: 100vh; padding: 32px 24px 60px; }
+  .header { text-align: center; margin-bottom: 40px; }
+  .eyebrow { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: #c9a96e; margin-bottom: 10px; }
+  h1 { font-family: 'Playfair Display', serif; font-size: clamp(24px, 4vw, 36px); color: #f5efe4; line-height: 1.2; margin-bottom: 8px; }
+  .subtitle { font-size: 13px; color: #7a7060; font-style: italic; }
+  .progress-bar { display: flex; gap: 6px; justify-content: center; margin-bottom: 36px; }
+  .progress-dot { width: 28px; height: 3px; border-radius: 2px; background: #2a2820; transition: background 0.4s ease; }
+  .progress-dot.active { background: #c9a96e; }
+  .progress-dot.done { background: #5a4e38; }
+  .card { background: #18170f; border: 1px solid #2a2820; border-radius: 16px; padding: 32px; max-width: 640px; margin: 0 auto 24px; }
+  .step-badge { display: inline-flex; align-items: center; gap: 8px; background: #1e1c13; border: 1px solid #2e2b1f; border-radius: 20px; padding: 4px 12px; font-size: 11px; color: #c9a96e; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px; }
+  .card h2 { font-family: 'Playfair Display', serif; font-size: 20px; color: #f5efe4; margin-bottom: 8px; line-height: 1.3; }
+  .card p { font-size: 13px; color: #6b6456; line-height: 1.7; margin-bottom: 20px; }
+  .hint { background: #1a1810; border-left: 2px solid #c9a96e; border-radius: 0 8px 8px 0; padding: 10px 14px; font-size: 12px; color: #7a6e58; margin-bottom: 20px; font-style: italic; line-height: 1.6; }
+  textarea, input[type="text"] { width: 100%; background: #111009; border: 1px solid #2a2820; border-radius: 10px; padding: 14px 16px; color: #e8e2d5; font-family: 'DM Sans', sans-serif; font-size: 14px; line-height: 1.7; resize: none; transition: border-color 0.3s; outline: none; }
+  textarea:focus, input[type="text"]:focus { border-color: #c9a96e; }
+  textarea::placeholder, input::placeholder { color: #3a3628; }
+  .tag-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+  .tag { padding: 6px 14px; border-radius: 20px; border: 1px solid #2a2820; background: #111009; font-size: 12px; color: #7a7060; cursor: pointer; transition: all 0.2s; user-select: none; }
+  .tag:hover { border-color: #c9a96e; color: #c9a96e; }
+  .tag.selected { background: #2a2210; border-color: #c9a96e; color: #c9a96e; }
+  .roles-container { display: flex; flex-direction: column; gap: 10px; }
+  .role-item { display: flex; gap: 10px; align-items: center; }
+  .role-item input { flex: 1; }
+  .add-btn { background: none; border: 1px dashed #2a2820; border-radius: 10px; color: #4a4438; padding: 10px; cursor: pointer; font-size: 20px; transition: all 0.2s; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .add-btn:hover { border-color: #c9a96e; color: #c9a96e; }
+  .remove-btn { background: none; border: none; color: #3a3628; cursor: pointer; font-size: 18px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px; transition: all 0.2s; flex-shrink: 0; }
+  .remove-btn:hover { background: #1e1c13; color: #c9a96e; }
+  .btn-row { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
+  .btn-back { padding: 10px 20px; border-radius: 8px; border: 1px solid #2a2820; background: none; color: #6b6456; font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer; transition: all 0.2s; }
+  .btn-back:hover { border-color: #4a4438; color: #9a9080; }
+  .btn-next { padding: 10px 24px; border-radius: 8px; border: none; background: #c9a96e; color: #0f0e0b; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+  .btn-next:hover { background: #dfc084; }
+  .result-card { background: #18170f; border: 1px solid #2a2820; border-radius: 16px; padding: 32px; max-width: 640px; margin: 0 auto; }
+  .mission-output { background: #111009; border: 1px solid #3a3222; border-radius: 12px; padding: 24px; margin: 20px 0; position: relative; }
+  .mission-output::before { content: '"'; font-family: 'Playfair Display', serif; font-size: 72px; color: #2a2210; position: absolute; top: -10px; left: 16px; line-height: 1; }
+  .mission-text { font-family: 'Playfair Display', serif; font-size: 16px; line-height: 1.8; color: #e8e2d5; padding-top: 16px; }
+  .section-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: #4a4438; margin-bottom: 12px; margin-top: 24px; }
+  .value-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+  .value-pill { padding: 4px 12px; background: #1e1c13; border: 1px solid #3a3222; border-radius: 20px; font-size: 12px; color: #c9a96e; }
+  .role-list { display: flex; flex-direction: column; gap: 6px; }
+  .role-entry { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #9a9080; }
+  .role-dot { width: 4px; height: 4px; border-radius: 50%; background: #c9a96e; flex-shrink: 0; }
+  .copy-btn { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #2a2820; background: none; color: #7a7060; font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 20px; }
+  .copy-btn:hover { border-color: #c9a96e; color: #c9a96e; }
+  .restart-btn { width: 100%; padding: 12px; border-radius: 8px; border: none; background: #1e1c13; color: #6b6456; font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer; transition: all 0.2s; margin-top: 10px; }
+  .restart-btn:hover { background: #2a2820; color: #9a9080; }
+  .loading-overlay { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48px 24px; gap: 16px; }
+  .spinner { width: 36px; height: 36px; border: 2px solid #2a2820; border-top-color: #c9a96e; border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { font-size: 13px; color: #4a4438; font-style: italic; }
+  .step-container { animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .char-counter { text-align: right; font-size: 11px; color: #3a3628; margin-top: 6px; }
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="eyebrow">Stephen Covey · Habit 2</div>
+  <h1>Personal Mission Statement<br><em>Builder</em></h1>
+  <div class="subtitle">Rancang kompas hidupmu dalam 5 langkah</div>
+</div>
+<div class="progress-bar" id="progressBar">
+  <div class="progress-dot active" id="dot-0"></div>
+  <div class="progress-dot" id="dot-1"></div>
+  <div class="progress-dot" id="dot-2"></div>
+  <div class="progress-dot" id="dot-3"></div>
+  <div class="progress-dot" id="dot-4"></div>
+  <div class="progress-dot" id="dot-5"></div>
+</div>
+<div id="app"></div>
+<script>
+const steps = [
+  { id: 'identity', icon: '👤', label: 'Perkenalan', title: 'Sebelum mulai, kenalan dulu', desc: 'Isi data dirimu di bawah ini supaya hasil mission statement-mu bisa dikirim dan dicatat dengan benar.', hint: 'Nama dan email wajib diisi. Nomor HP opsional.', type: 'identity' },
+  { id: 'funeral', icon: '🕯️', label: 'Visualisasi Pemakaman', title: 'Bayangkan warisanmu', desc: 'Covey memulai dengan latihan paling dalam: bayangkan pemakaman sendiri. Ada 4 orang berpidato — dari keluarga, teman dekat, rekan kerja, dan komunitas.', hint: 'Jangan pikirkan apa yang realistis. Pikirkan apa yang paling bermakna bagimu jika kamu sudah tidak ada.', question: 'Apa yang paling ingin kamu dengar mereka katakan tentang dirimu?', placeholder: 'Contoh: "Ia selalu hadir ketika dibutuhkan, tidak pernah mementingkan diri sendiri, dan membuat semua orang di sekitarnya merasa berharga..."', type: 'textarea', rows: 5 },
+  { id: 'values', icon: '⚖️', label: 'Nilai Inti', title: 'Apa yang tidak bisa kamu kompromikan?', desc: 'Nilai adalah prinsip yang menjadi fondasi keputusanmu. Ini bukan aspirasi — ini adalah hal yang sudah ada dalam dirimu dan tidak bisa ditawar.', hint: 'Pilih nilai yang benar-benar mencerminkan dirimu, bukan yang terdengar bagus di mata orang.', question: '', type: 'tags', options: ['Kejujuran','Keberanian','Keluarga','Kreativitas','Keadilan','Pertumbuhan','Pelayanan','Kemandirian','Kesetiaan','Disiplin','Empati','Integritas','Kebebasan','Ketangguhan','Spiritualitas','Keseimbangan','Kepemimpinan','Pengetahuan','Dampak Sosial','Kesederhanaan'], customPlaceholder: 'Tulis nilaimu sendiri...' },
+  { id: 'roles', icon: '🎭', label: 'Peran Hidup', title: 'Siapa saja kamu dalam hidup ini?', desc: 'Kamu menjalani banyak peran sekaligus — sebagai individu, anggota keluarga, profesional, dan anggota masyarakat. Setiap peran membawa tanggung jawab dan kesempatan berbeda.', hint: 'Covey menyarankan agar misi pribadimu mencakup semua peran penting, bukan hanya karier.', type: 'roles' },
+  { id: 'contribution', icon: '🌱', label: 'Kontribusi', title: 'Kontribusi apa yang ingin kamu berikan?', desc: 'Bukan tentang pencapaian pribadi, tapi tentang dampak nyata yang kamu tinggalkan untuk orang lain dan dunia di sekitarmu.', hint: 'Pikirkan 10–20 tahun ke depan. Perubahan apa yang ingin kamu lihat terjadi karena kehadiranmu?', question: 'Bayangkan hidupmu 15 tahun dari sekarang. Dampak apa yang sudah kamu tinggalkan?', placeholder: 'Contoh: "Aku ingin telah membangun keluarga yang saling mendukung, membimbing setidaknya 10 orang muda dalam karier mereka..."', type: 'textarea', rows: 4 },
+  { id: 'center', icon: '🧭', label: 'Pusat Hidupmu', title: 'Apa yang menjadi pusat hidupmu?', desc: 'Covey mengingatkan bahwa pusat hidup menentukan segalanya. Ia menyarankan agar kita berpusat pada prinsip, bukan pada hal-hal yang bisa berubah.', hint: 'Pertanyaan ini mungkin paling sulit. Jawablah dengan jujur, bukan dengan jawaban yang "seharusnya".', question: 'Jika kamu harus merangkum prinsip utama yang akan memandu semua keputusanmu, apa itu?', placeholder: 'Contoh: "Aku dipandu oleh keyakinan bahwa setiap manusia layak diperlakukan dengan bermartabat, dan setiap tindakanku harus memperkuat hubungan..."', type: 'textarea', rows: 4 }
+];
+
+// ============================================================
+// GANTI baris di bawah ini dengan URL Web App Apps Script kamu
+// (lihat panduan setup). Selama masih 'PASTE_URL...', data tidak terkirim.
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbygbtdY_zefii2QGFIDxNbYM8V75PzCh5Ibmm6R3HaRbQOsN0C8IcPa5MQIBti4EXdQhQ/exec';
+// ============================================================
+
+let currentStep = 0;
+let data = { nama: '', email: '', hp: '', funeral: '', values: [], valuesCustom: '', roles: ['Individu / Diri Sendiri', 'Anggota Keluarga', ''], contribution: '', center: '' };
+
+function updateProgress() {
+  for (let i = 0; i < steps.length; i++) {
+    const dot = document.getElementById('dot-' + i);
+    if (!dot) continue;
+    if (i < currentStep) dot.className = 'progress-dot done';
+    else if (i === currentStep) dot.className = 'progress-dot active';
+    else dot.className = 'progress-dot';
+  }
+}
+
+function renderStep() {
+  const app = document.getElementById('app');
+  const step = steps[currentStep];
+  if (step.type === 'identity') {
+    app.innerHTML = `<div class="card step-container"><div class="step-badge">${step.icon} ${step.label}</div><h2>${step.title}</h2><p>${step.desc}</p><div class="hint">${step.hint}</div>
+      <div class="section-label">Nama lengkap *</div>
+      <input type="text" id="idNama" placeholder="Nama lengkap kamu" value="${data.nama}" oninput="data.nama=this.value">
+      <div class="section-label">Email *</div>
+      <input type="text" id="idEmail" placeholder="nama@email.com" value="${data.email}" oninput="data.email=this.value">
+      <div class="section-label">No. HP (opsional)</div>
+      <input type="text" id="idHp" placeholder="08xxxxxxxxxx" value="${data.hp}" oninput="data.hp=this.value">
+      <div id="idError" style="color:#d98c6a;font-size:12px;margin-top:10px;display:none">Mohon isi Nama dan Email yang valid dulu ya.</div>
+      <div class="btn-row"><button class="btn-next" onclick="nextStep()">Mulai →</button></div></div>`;
+  } else if (step.type === 'tags') {
+    app.innerHTML = `<div class="card step-container"><div class="step-badge">${step.icon} ${step.label}</div><h2>${step.title}</h2><p>${step.desc}</p><div class="hint">${step.hint}</div><div class="tag-grid">${step.options.map(v => `<div class="tag ${data.values.includes(v)?'selected':''}" onclick="toggleTag('${v}')">${v}</div>`).join('')}</div><div class="section-label">Nilai lainnya (opsional)</div><input type="text" id="customValue" placeholder="${step.customPlaceholder}" value="${data.valuesCustom}" oninput="data.valuesCustom=this.value"><div class="btn-row"><button class="btn-back" onclick="prevStep()">← Kembali</button><button class="btn-next" onclick="nextStep()">Lanjut →</button></div></div>`;
+  } else if (step.type === 'roles') {
+    app.innerHTML = `<div class="card step-container"><div class="step-badge">${step.icon} ${step.label}</div><h2>${step.title}</h2><p>${step.desc}</p><div class="hint">${step.hint}</div><div class="roles-container" id="rolesContainer">${data.roles.map((r,i) => `<div class="role-item"><input type="text" placeholder="Contoh: Ayah/Ibu, Pemimpin tim, Mentor..." value="${r}" oninput="data.roles[${i}]=this.value">${i>=2?`<button class="remove-btn" onclick="removeRole(${i})">×</button>`:'<div style="width:32px"></div>'}</div>`).join('')}</div><div style="margin-top:10px"><button class="add-btn" onclick="addRole()">+</button></div><div class="btn-row"><button class="btn-back" onclick="prevStep()">← Kembali</button><button class="btn-next" onclick="nextStep()">Lanjut →</button></div></div>`;
+  } else {
+    const savedVal = data[step.id] || '';
+    app.innerHTML = `<div class="card step-container"><div class="step-badge">${step.icon} ${step.label}</div><h2>${step.title}</h2><p>${step.desc}</p><div class="hint">${step.hint}</div>${step.question?`<div class="section-label">${step.question}</div>`:''}<textarea id="mainInput" rows="${step.rows||4}" placeholder="${step.placeholder}" oninput="updateData()">${savedVal}</textarea><div class="char-counter" id="charCount">${savedVal.length} karakter</div><div class="btn-row">${currentStep>0?`<button class="btn-back" onclick="prevStep()">← Kembali</button>`:''}<button class="btn-next" onclick="nextStep()">${currentStep===steps.length-1?'✨ Buat Mission Statement':'Lanjut →'}</button></div></div>`;
+  }
+}
+
+function updateData() {
+  const step = steps[currentStep];
+  const val = document.getElementById('mainInput')?.value || '';
+  data[step.id] = val;
+  const c = document.getElementById('charCount');
+  if (c) c.textContent = val.length + ' karakter';
+}
+
+function toggleTag(value) {
+  if (data.values.includes(value)) data.values = data.values.filter(v => v !== value);
+  else data.values.push(value);
+  renderStep();
+}
+
+function addRole() { data.roles.push(''); renderStep(); }
+function removeRole(i) { data.roles.splice(i,1); renderStep(); }
+
+function prevStep() {
+  if (currentStep > 0) { currentStep--; updateProgress(); renderStep(); }
+}
+
+function nextStep() {
+  if (steps[currentStep].type === 'identity') {
+    const emailOk = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(data.email.trim());
+    if (!data.nama.trim() || !emailOk) {
+      const err = document.getElementById('idError');
+      if (err) err.style.display = 'block';
+      return;
+    }
+  }
+  if (currentStep < steps.length - 1) {
+    if (steps[currentStep].type === 'tags') data.valuesCustom = document.getElementById('customValue')?.value || '';
+    currentStep++; updateProgress(); renderStep();
+  } else { generateMission(); }
+}
+
+async function generateMission() {
+  const app = document.getElementById('app');
+  app.innerHTML = `<div class="card"><div class="loading-overlay"><div class="spinner"></div><div class="loading-text">Merangkai mission statement-mu dengan AI...</div></div></div>`;
+  const allValues = [...data.values];
+  if (data.valuesCustom.trim()) allValues.push(data.valuesCustom.trim());
+  const roles = data.roles.filter(r => r.trim());
+
+  // Mode tes: kalau URL belum diisi, jangan kirim ke mana pun
+  if (!SCRIPT_URL || SCRIPT_URL === 'PASTE_URL_WEB_APP_DI_SINI') {
+    showResult('⚙ Mode tes: Apps Script belum dihubungkan, jadi AI belum aktif dan data belum tersimpan. Isi SCRIPT_URL di kode untuk mengaktifkan.', allValues, roles);
+    return;
+  }
+
+  const payload = {
+    nama: data.nama, email: data.email, hp: data.hp,
+    funeral: data.funeral,
+    values: allValues.join(', '),
+    roles: roles.join(', '),
+    contribution: data.contribution,
+    center: data.center
+  };
+
+  try {
+    // Content-Type text/plain = "simple request", lolos preflight CORS Apps Script
+    const response = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    });
+    const result = await response.json();
+    const missionText = (result && result.mission)
+      ? result.mission
+      : 'Jawabanmu sudah tersimpan, tapi AI belum sempat merangkai hasilnya. Coba ulang sebentar lagi ya.';
+    showResult(missionText, allValues, roles);
+  } catch (e) {
+    showResult('Maaf, koneksi bermasalah. Coba lagi sebentar lagi.', allValues, roles);
+  }
+}
+
+function showResult(missionText, values, roles) {
+  for (let i = 0; i < steps.length; i++) { const d=document.getElementById('dot-'+i); if(d) d.className='progress-dot done'; }
+  document.getElementById('app').innerHTML = `
+    <div class="result-card step-container">
+      <div class="eyebrow" style="color:#c9a96e;font-size:11px;letter-spacing:3px;text-transform:uppercase;margin-bottom:12px">✦ Mission Statement Pribadimu</div>
+      <div class="mission-output"><div class="mission-text" id="missionText">${missionText}</div></div>
+      <div class="section-label">Nilai-nilai inti</div>
+      <div class="value-pills">${values.map(v=>`<div class="value-pill">${v}</div>`).join('')}</div>
+      <div class="section-label">Peran-peran hidupmu</div>
+      <div class="role-list">${roles.map(r=>`<div class="role-entry"><div class="role-dot"></div>${r}</div>`).join('')}</div>
+      <button class="copy-btn" onclick="copyMission()">📋 Salin Mission Statement</button>
+      <button class="restart-btn" onclick="restart()">↺ Mulai Ulang</button>
+    </div>`;
+}
+
+function copyMission() {
+  const text = document.getElementById('missionText')?.innerText || '';
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    if (btn) { btn.textContent = '✓ Tersalin!'; setTimeout(()=>btn.textContent='📋 Salin Mission Statement',2000); }
+  });
+}
+
+function restart() {
+  currentStep = 0;
+  data = { funeral: '', values: [], valuesCustom: '', roles: ['Individu / Diri Sendiri', 'Anggota Keluarga', ''], contribution: '', center: '' };
+  updateProgress(); renderStep();
+}
+
+renderStep();
+</script>
+</body>
+</html>
